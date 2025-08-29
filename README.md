@@ -1,3 +1,3 @@
 admin account:
-  admin2@example.com
-  admin123
+user:  admin2@example.com
+pass:  admin123
