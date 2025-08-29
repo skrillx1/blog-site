@@ -52,7 +52,7 @@ class BlogController extends Controller
         $blog = Blog::findOrFail($id);
         
         // Check if user is admin or the blog owner
-        if (!auth()->user()->isAdmin() && auth()->id() !== $blog->user_id) {
+        if (!$request->user()->isAdmin() && $request->user()->id !== $blog->user_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

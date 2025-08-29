@@ -25,9 +25,24 @@
             <div v-for="blog in blogs" :key="blog.id" class="blog-item">
                 <h4>{{ blog.title }}</h4>
                 <p>{{ blog.content }}</p>
-                <div class="blog-actions" v-if="user.role === 'admin' || (user.role === 'editor' && blog.user_id === user.id)">
-                    <button @click="editBlog(blog)" v-if="user.role === 'admin' || blog.user_id === user.id">Edit</button>
-                    <button @click="deleteBlog(blog.id)" v-if="user.role === 'admin'">Delete</button>
+                <p class="blog-author">Author: {{ blog.user?.name || 'Unknown' }}</p>
+                
+                <div class="blog-actions">
+                    <!-- Edit button - Only show for admin OR editor who owns the blog -->
+                    <button 
+                        v-if="user.role === 'admin' || (user.role === 'editor' && blog.user_id === user.id)"
+                        @click="editBlog(blog)"
+                        class="edit-btn">
+                        Edit
+                    </button>
+                    
+                    <!-- Delete button - Only show for admin -->
+                    <button 
+                        v-if="user.role === 'admin'"
+                        @click="deleteBlog(blog.id)"
+                        class="delete-btn">
+                        Delete
+                    </button>
                 </div>
             </div>
         </div>
@@ -67,6 +82,11 @@ export default {
             this.loading = true;
             try {
                 if (this.editingBlog) {
+                    // Check if user has permission to edit
+                    if (this.user.role !== 'admin' && this.editingBlog.user_id !== this.user.id) {
+                        alert('You do not have permission to edit this blog');
+                        return;
+                    }
                     await blogService.update(this.editingBlog.id, this.blogForm);
                 } else {
                     await blogService.create(this.blogForm);
@@ -76,12 +96,21 @@ export default {
                 await this.loadBlogs();
             } catch (error) {
                 console.error('Error saving blog:', error);
+                if (error.response?.status === 403) {
+                    alert('You do not have permission to perform this action');
+                }
             } finally {
                 this.loading = false;
             }
         },
 
         editBlog(blog) {
+            // Check if user has permission to edit
+            if (this.user.role !== 'admin' && blog.user_id !== this.user.id) {
+                alert('You do not have permission to edit this blog');
+                return;
+            }
+            
             this.editingBlog = blog;
             this.blogForm = { ...blog };
         },
@@ -107,6 +136,9 @@ export default {
                 await this.loadBlogs();
             } catch (error) {
                 console.error('Error deleting blog:', error);
+                if (error.response?.status === 403) {
+                    alert('You do not have permission to delete this blog');
+                }
             }
         },
 
@@ -192,22 +224,34 @@ button[type="submit"] {
     margin-bottom: 1rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.blog-author {
+    font-style: italic;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
 }
 
 .blog-actions {
     margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
 }
 
-.blog-actions button {
-    background: #6c757d;
+.edit-btn {
+    background: #28a745;
     color: white;
 }
 
-.blog-actions button:first-child {
-    background: #28a745;
+.delete-btn {
+    background: #dc3545;
+    color: white;
 }
 
-.blog-actions button:last-child {
-    background: #dc3545;
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 </style>
