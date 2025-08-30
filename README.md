@@ -38,10 +38,17 @@ Follow the instructions below to set up and run the system locally.
    ```bash
    npm run dev
 
-## Default Admin Account
+## Default Admin Accountr
 
 Use the following credentials to log in as an administrator:
 
 `Email:` admin2@example.com
 
 `Password:` admin123
+
+## Editor user Accoutn
+
+`Email:` testingeditor@gmail.com
+
+`Password:` password
+
