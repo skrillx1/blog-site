@@ -37,3 +37,11 @@ Follow the instructions below to set up and run the system locally.
 3. Start the frontend development server:
    ```bash
    npm run dev
+
+## Default Admin Account
+
+Use the following credentials to log in as an administrator:
+
+`Email:` admin2@example.com
+
+`Password:` admin123
