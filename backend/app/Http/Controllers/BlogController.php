@@ -15,8 +15,14 @@ class BlogController extends Controller
 
     public function index()
     {
-        $blogs = Blog::all();
+        $blogs = Blog::with('user:id,name')->get();
         return response()->json($blogs);
+    }
+
+    public function show($id)
+    {
+        $blog = Blog::with('user:id,name')->findOrFail($id);
+        return response()->json($blog);
     }
 
     public function store(Request $request)
@@ -41,16 +47,10 @@ class BlogController extends Controller
         return response()->json($blog, 201);
     }
 
-    public function show($id)
-    {
-        $blog = Blog::findOrFail($id);
-        return response()->json($blog);
-    }
-
     public function update(Request $request, $id)
     {
         $blog = Blog::findOrFail($id);
-        
+
         // Check if user is admin or the blog owner
         if (!$request->user()->isAdmin() && $request->user()->id !== $blog->user_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -74,7 +74,7 @@ class BlogController extends Controller
     public function destroy($id)
     {
         $blog = Blog::findOrFail($id);
-        
+
         // Only admin can delete any blog
         if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Unauthorized'], 403);

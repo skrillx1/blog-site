@@ -25,7 +25,7 @@
             <div v-for="blog in blogs" :key="blog.id" class="blog-item">
                 <h4>{{ blog.title }}</h4>
                 <p>{{ blog.content }}</p>
-                <p class="blog-author">Author: {{ blog.user?.name || 'Unknown' }}</p>
+                <p class="blog-author">Author: {{ getAuthorName(blog) }}</p>
                 
                 <div class="blog-actions">
                     <!-- Edit button - Only show for admin OR editor who owns the blog -->
@@ -78,6 +78,21 @@ export default {
             }
         },
 
+        getAuthorName(blog) {
+            // Check if user data is available in the blog object
+            if (blog.user && blog.user.name) {
+                return blog.user.name;
+            }
+            
+            // Fallback: check if the blog belongs to the current user
+            if (blog.user_id === this.user.id) {
+                return this.user.name + ' (You)';
+            }
+            
+            // Final fallback
+            return 'Unknown Author';
+        },
+
         async handleSubmit() {
             this.loading = true;
             try {
@@ -112,7 +127,10 @@ export default {
             }
             
             this.editingBlog = blog;
-            this.blogForm = { ...blog };
+            this.blogForm = { 
+                title: blog.title,
+                content: blog.content
+            };
         },
 
         cancelEdit() {
@@ -253,5 +271,14 @@ button[type="submit"] {
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+.blog-author {
+    font-style: italic;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 </style>
